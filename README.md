@@ -1,4 +1,6 @@
-# TradingView Charting Library and React Integration Example (JavaScript)
+# Tutorial
+
+[TradingView Charting Library JS API Setup for Crypto: Part 1](https://medium.com/@jonchurch/tradingview-charting-library-js-api-setup-for-crypto-part-1-57e37f5b3d5a)
 
 ## How to start
 
