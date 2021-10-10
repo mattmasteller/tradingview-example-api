@@ -68,26 +68,18 @@ export class TVChartContainer extends React.PureComponent {
         // 'header_screenshot',
         // 'header_fullscreen_button',
 
+        // Toolbars
         'left_toolbar',
         'right_toolbar',
+        'timeframes_toolbar',
+
         'chart_crosshair_menu',
-
         'show_chart_property_page',
-
-				'timeframes_toolbar',
         'go_to_date',
-      ],
 
-      // enabled_features: ['hide_left_toolbar_by_default'], // https://stackoverflow.com/questions/57577764/how-can-i-remove-particular-tools-in-tradingview-widget-js
-      // drawings_access: {
-      //   type: 'black',
-      //   tools: [
-      //     {
-      //       name: 'Trend Line',
-      //       grayed: true,
-      //     },
-      //   ],
-      // },
+        'use_localstorage_for_settings',
+      ],
+      // enabled_features: ['study_templates'],
     }
 
 		const tvWidget = new widget(widgetOptions);
