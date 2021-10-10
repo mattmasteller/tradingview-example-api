@@ -90,8 +90,8 @@ export class TVChartContainer extends React.PureComponent {
     tvWidget.onChartReady(() => {
       // total visible range
       let minFrom = undefined
-			let maxTo = undefined
-			const logTotalVisibleRange = () =>
+      let maxTo = undefined
+      const logTotalVisibleRange = () =>
         console.log('Total visible range', minFrom, maxTo)
       const setMinFromMaxTo = (from, to) => {
         if (!minFrom || from < minFrom) {
@@ -99,12 +99,13 @@ export class TVChartContainer extends React.PureComponent {
           logTotalVisibleRange()
         }
         if (!maxTo || to < maxTo) {
-					maxTo = to
-					logTotalVisibleRange()
+          maxTo = to
+          logTotalVisibleRange()
         }
       }
 
       // add alert marker
+      // https://github.com/tradingview/charting_library/wiki/Chart-Methods#createmultipointshapepoints-options
       tvWidget
         .activeChart()
         .createMultipointShape([{ time: 1633744800, price: 54156 }], {
