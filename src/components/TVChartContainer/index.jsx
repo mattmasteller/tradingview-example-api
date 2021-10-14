@@ -3,13 +3,84 @@ import './index.css'
 import { widget } from '../../charting_library'
 
 import Datafeed from './api'
+import getAlertsHistory from './api/alertsProvider'
 
-function getLanguageFromURL() {
-  const regex = new RegExp('[\\?&]lang=([^&#]*)')
-  const results = regex.exec(window.location.search)
-  return results === null
-    ? null
-    : decodeURIComponent(results[1].replace(/\+/g, ' '))
+const PAUSE_BEFORE_FETCHING_ALERTS = 1000
+
+let isFetchingAlerts = false
+
+// total visible range
+let visibleRange = {
+  minFrom: undefined,
+  maxTo: undefined,
+  fetchedFrom: undefined,
+  fetchedTo: undefined,
+}
+
+const pause = (timeout = 1000) => {
+  console.log(`Pausing ${timeout / 1000} seconds to let more events fire...`)
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), timeout)
+  })
+}
+
+const fetchAlerts = async () => {
+  // Skip if already fetching
+  if (isFetchingAlerts) return
+
+  isFetchingAlerts = true
+
+  console.log('visibleRange', visibleRange)
+
+  // Pause before fetching, to allow more events to fire
+  await pause(PAUSE_BEFORE_FETCHING_ALERTS)
+
+  while (visibleRange.minFrom !== visibleRange.fetchedFrom) {
+    const from = visibleRange.minFrom
+    const to = visibleRange.fetchedFrom
+      ? visibleRange.fetchedFrom
+      : visibleRange.maxTo
+
+    const results = await getAlertsHistory(from, to)
+
+    visibleRange.fetchedFrom = results.from
+    visibleRange.fetchedTo = results.to
+    isFetchingAlerts = false
+
+    console.log(
+      `Fetched ${results.alerts.length} alerts from ${results.from} to ${results.to}`
+    )
+    console.log(
+      `fetchedFrom: ${visibleRange.fetchedFrom} to ${visibleRange.fetchedTo}`
+    )
+  }
+
+  console.log('visibleRange', visibleRange)
+}
+
+const setVisibleRange = (from, to) => {
+  const { minFrom, maxTo } = visibleRange
+
+  // Initialize
+  if (!minFrom && !maxTo) {
+    console.log(`Initialize minFrom ${visibleRange.minFrom} -> ${from}`)
+    visibleRange.minFrom = from
+    console.log(`Initialize maxTo ${visibleRange.maxTo} -> ${to}`)
+    visibleRange.maxTo = to
+
+    // Fetch alerts
+    fetchAlerts()
+
+    return
+  }
+
+  if (from < minFrom) {
+    console.log(`Update minFrom ${visibleRange.minFrom} -> ${from}`)
+    visibleRange.minFrom = from
+
+    // Fetch alerts
+    fetchAlerts()
+  }
 }
 
 export class TVChartContainer extends React.PureComponent {
@@ -88,23 +159,7 @@ export class TVChartContainer extends React.PureComponent {
     this.tvWidget = tvWidget
 
     tvWidget.onChartReady(() => {
-      // total visible range
-      let minFrom = undefined
-      let maxTo = undefined
-      const logTotalVisibleRange = () =>
-        console.log('Total visible range', minFrom, maxTo)
-      const setMinFromMaxTo = (from, to) => {
-        if (!minFrom || from < minFrom) {
-          minFrom = from
-          logTotalVisibleRange()
-        }
-        if (!maxTo || to < maxTo) {
-          maxTo = to
-          logTotalVisibleRange()
-        }
-      }
-
-      // add alert marker
+      // add alert marker (TEST)
       // https://github.com/tradingview/charting_library/wiki/Chart-Methods#createmultipointshapepoints-options
       tvWidget
         .activeChart()
@@ -117,11 +172,12 @@ export class TVChartContainer extends React.PureComponent {
           zOrder: 'top',
           overrides: { color: '#FF0000' },
         })
+
       // TODO: fetch and add alert markers ()
       tvWidget
         .activeChart()
         .onVisibleRangeChanged()
-        .subscribe(null, ({ from, to }) => setMinFromMaxTo(from, to)) // TODO: watch out! events are fast, don't fetch from api too often
+        .subscribe(null, ({ from, to }) => setVisibleRange(from, to)) // TODO: watch out! events are fast, don't fetch from api too often
       // add debug button
       tvWidget.headerReady().then(() => {
         const button = tvWidget.createButton()
