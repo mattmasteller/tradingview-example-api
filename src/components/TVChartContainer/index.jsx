@@ -158,20 +158,54 @@ export class TVChartContainer extends React.PureComponent {
     const tvWidget = new widget(widgetOptions)
     this.tvWidget = tvWidget
 
+    const bearishShape = {
+      shape: 'icon',
+      // icon: 0xf060, // left arrow
+      // icon: 0xf104, // left chevron
+      // icon: 0xf0d7, // down triangle
+      // icon: 0xf0d8, // up triangle
+      icon: 0xf01a, // circled down triangle
+      lock: true,
+      zOrder: 'top',
+      overrides: { color: 'red', size: 20 },
+      disableSelection: true,
+      disableSave: true,
+      disableUndo: true,
+    }
+
+    const bullishShape = {
+      shape: 'icon',
+      // icon: 0xf060, // left arrow
+      // icon: 0xf104, // left chevron
+      // icon: 0xf0d8, // up triangle
+      icon: 0xf01b, // circled up triangle
+      lock: true,
+      zOrder: 'top',
+      overrides: { color: 'green', size: 20 },
+      disableSelection: true,
+      disableSave: true,
+      disableUndo: true,
+    }
+
     tvWidget.onChartReady(() => {
       // add alert marker (TEST)
       // https://github.com/tradingview/charting_library/wiki/Chart-Methods#createmultipointshapepoints-options
+
+      // Bearish Shape
       tvWidget
         .activeChart()
-        .createMultipointShape([{ time: 1633744800, price: 54156 }], {
-          shape: 'arrow_left',
-          lock: true,
-          disableSelection: true,
-          disableSave: true,
-          disableUndo: true,
-          zOrder: 'top',
-          overrides: { color: '#FF0000' },
-        })
+        .createMultipointShape(
+          [{ time: 1634328000, price: 62900 }],
+          bearishShape
+        )
+
+      // Bullish Shape
+      tvWidget
+        .activeChart()
+        .createMultipointShape(
+          [{ time: 1634331600, price: 61000 }],
+          bullishShape
+        )
 
       // TODO: fetch and add alert markers ()
       tvWidget
