@@ -11,7 +11,7 @@ class App extends React.Component {
 						TradingView Charting Library and React Integration Example
 					</h1>
 				</header>
-				<TVChartContainer />
+				<TVChartContainer symbol='BINANCE:ETH/USDT' />
 			</div>
 		);
 	}
